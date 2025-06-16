@@ -1,0 +1,25 @@
+✅ MASTER PROMPT #1: IMAGE DESCRIPTION FROM PRODUCT PHOTO
+
+📌 INSTRUCTION FOR CHATGPT (or similar AI model):  
+Carefully analyze the attached product image. Based only on what is visually present in the image (no guessing!), write an extremely detailed technical description of the product. This description will be used later to recreate a similar image, even without seeing the original. Include all visible elements: text, illustration style, fonts, positioning, colors, etc.
+
+✳️ OUTPUT STRUCTURE (MANDATORY):
+
+1. Type of product and general description  
+2. Product colors (main color, accents, background, etc.)  
+3. Full description of all graphic/illustrated elements and characters (position, style, color details)  
+4. Exact written text on the product – do not paraphrase  
+5. Typography – font style, color, size, bold/italic, special effects  
+6. Placement of each element (centered, left, on stomach, above character, etc.)  
+7. Art style – e.g., cartoonish, flat design, vector, 3D, hand-drawn  
+8. Background elements (if any)  
+9. Special features – e.g., personalization field (name, role), added textures, shadows, layered objects
+
+✳️ ADDITIONAL RULES:
+– Do not write a marketing description. This is not for a web shop.  
+– Only describe what is actually visible in the image – no assumptions or creative additions.  
+– Write the exact text as it appears on the item.  
+– If any text includes a name or role (e.g., “Firefighter Maks”), mark it clearly as a personalized field.  
+– Ensure that UTF-8 encoding is followed, especially for languages with special characters (č, š, ž, ć, đ, etc.).  
+– Include details that help future image generation – like photo type (portrait, flatlay, 3:4 ratio, studio light, etc.)
+10. Image ratio must be noted explicitly – default should be 3:4 unless otherwise specified.
