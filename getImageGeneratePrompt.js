@@ -31,7 +31,7 @@ const getImageGeneratePrompt = async () => {
         const excelData = xlsx.utils.sheet_to_json(worksheet);
 
         // Prepare output file
-        const outputDir = './promptDescriptions_excel';
+        const outputDir = './imageGenerationPrompt_excel';
         if (!fs2.existsSync(outputDir)) {
             fs2.mkdirSync(outputDir);
         }

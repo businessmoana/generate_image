@@ -6,25 +6,27 @@ const fs2 = require('fs');
 
 const NUM_WORKERS = 4;
 
-const getTimeStamp = () => {
-    const now = new Date();
-    return now.toISOString().replace(/T/, '_').replace(/:/g, '-').split('.')[0];
-};
-
-const convertedDirMain = `./converted_images`;
-if (!fs2.existsSync(convertedDirMain)) {
-    fs2.mkdirSync(convertedDirMain);
-}
-
-const convertedDir = `./converted_images/${getTimeStamp()}`;
-if (!fs2.existsSync(convertedDir)) {
-    fs2.mkdirSync(convertedDir);
-}
 
 const imageGenerate = async () => {
+
+    const getTimeStamp = () => {
+        const now = new Date();
+        return now.toISOString().replace(/T/, '_').replace(/:/g, '-').split('.')[0];
+    };
+
+    const convertedDirMain = `./converted_images`;
+    if (!fs2.existsSync(convertedDirMain)) {
+        fs2.mkdirSync(convertedDirMain);
+    }
+
+    const convertedDir = `./converted_images/${getTimeStamp()}`;
+    if (!fs2.existsSync(convertedDir)) {
+        fs2.mkdirSync(convertedDir);
+    }
+
     try {
         // Read the input Excel file
-        const excelFiles = await fs.readdir('./promptDescriptions_excel');
+        const excelFiles = await fs.readdir('./imageGenerationPrompt_excel');
         const latestExcelFile = excelFiles
             .filter(file => file.endsWith('.xlsx'))
             .sort()
@@ -35,7 +37,7 @@ const imageGenerate = async () => {
             return;
         }
 
-        const excelPath = path.join('./promptDescriptions_excel', latestExcelFile);
+        const excelPath = path.join('./imageGenerationPrompt_excel', latestExcelFile);
         const workbook = xlsx.readFile(excelPath);
         const worksheet = workbook.Sheets['Results'];
         const excelData = xlsx.utils.sheet_to_json(worksheet);
