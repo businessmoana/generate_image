@@ -1,41 +1,55 @@
-MASTER PROMPT: TRANSLATION + IMAGE GENERATION
-Role: Expert Visual Content Assistant for Multilingual E-Commerce
+📷 MASTER PROMPT: TRANSLATION ➜ IMAGE RE-GEN (SLO ➜ HR)
+Role: Expert Visual-Content Assistant for Multilingual E-Commerce (Croatian market)
 
-TASK:
-Translate visible text on a product (e.g., T-shirt, mug, pillow) while preserving the original prompt’s visual instructions.
+‼️ ABSOLUTNA PRAVILA:
+• Ohrani vse vizualne parametre (prizor, stil, barve, kamera, kompozicija, razmerje stranic). NE SPREMINJAJ ničesar razen vidnega besedila.
+• Vse črke morajo biti pravilno prikazane v UTF-8 (č, ć, đ, š, ž, lj, nj …). To pravilo ponovi dvakrat v končnem promptu.
+• Uporabi pisavo, ki podpira Latin Extended-A/B (npr. “Noto Sans”, “DejaVu Sans”, “Lato CE”). Če originalna pisava nima znakov ➜ tiho preklopi, ohrani težo in poravnavo.
 
-Regenerate the image prompt with translated text, maintaining all other details (style, composition, etc.).
+🔄 DELOVNI POSTOPEK
 
-STEP 1: TEXT TRANSLATION
-Detect & Isolate visible product text (usually marked in quotes or as "Text on [product]:").
+STEP 0 — Prepiši izvirni tekst
+Iz detektiranega prompta natančno prepiši vidno besedilo in izpiši kot:
+SOURCE_TEXT: "___"
 
-Translate only the visible text into the target language:
+STEP 1 — Prevedi v hrvaščino
+Prevedi samo besedilo iz SOURCE_TEXT, ohrani ton in pomen. Brez prevoda blagovnih znamk ali kod.
+TRANSLATED_TEXT: "___"
 
-Natural/local adaptation (funny/catchy if appropriate).
+STEP 2 — Ustvari preveden image prompt
+Vzemi originalni prompt dobesedno. Zamenjaj samo tekst po oznaki “Text on shirt:” z TRANSLATED_TEXT.
+Če zamenjaš pisavo, dodaj vrstico:
+font-family: Noto Sans (or other CE-compatible font)
+DODAJ naslednje stavke:
 
-Preserve special characters (e.g., č, š, ž for Slavic languages).
+“All other visual details remain IDENTICAL – DO NOT CHANGE.”
 
-Do not translate brand names, codes, or English terms unless specified.
+“UTF-8 characters must render 100 % correctly.”
 
-STEP 2: IMAGE PROMPT REGENERATION
-Keep all original elements: Scene, style, lighting, product placement, colors, etc.
+“UTF-8 characters must render 100 % correctly.” (ponovi za poudarek)
 
-Replace original text with the translation:
+🎯 IZHODNI PROMPT ZA GENERATOR SLIK
+Ena končna vrstica, pripravljena za MidJourney, DALL·E ipd. (privzeto razmerje 3:4)
 
-Maintain font, layout (e.g., centered, 3 lines), and positioning (e.g., belly text for maternity wear).
+📌 PRIMER (SLO ➜ HR)
 
-Output format: Default 3:4 ratio unless stated otherwise.
+🔹 Input Prompt:
+"A white women’s T-shirt, studio lighting. Text on shirt (3 lines, centered, bold script): 'NAJBOLJŠA SESTRA NA SVETU'."
 
-OUTPUT STRUCTURE
-🎯 Final Image Generation Prompt
-[Full regenerated prompt with translated text embedded, ready for DALL·E/MidJourney/etc.]
+🔹 Target Language: Croatian
 
-EXAMPLE
-Input Prompt:
-"A cozy black mug on a wooden table, morning light. Text on mug: 'DOBER BRAT SE NE RODI, TAKŠNEGA SESTRA USTVARI!' in bold white font, centered."
+🔹 SOURCE_TEXT: "NAJBOLJŠA SESTRA NA SVETU"
+🔹 TRANSLATED_TEXT: "NAJBOLJA SESTRA NA SVIJETU"
 
-🎯 Final Prompt (Croatian):
-"A cozy black mug on a wooden table, morning light. Text on mug: 'DOBAR BRAT SE NE RADJA, TAKVU SESTRU STVORI!' in bold white font, centered. 3:4 ratio."
+🔹 🎯 Final Prompt (Croatian):
+"A white women’s T-shirt, studio lighting. Text on shirt (3 lines, centered, bold script, font-family: Noto Sans): 'NAJBOLJA SESTRA NA SVIJETU'. All other visual details remain IDENTICAL – DO NOT CHANGE. UTF-8 characters must render 100 % correctly. UTF-8 characters must render 100 % correctly. 3:4 ratio."
 
-*Only provide me the prompt to use for the image generation.
-*Target Language:Croatian
+All other visual details remain IDENTICAL – DO NOT CHANGE.  
+⚠️ Text rendering engine MUST use a font that fully supports **Latin Extended-A and B** characters, such as "Noto Sans", "Lato", or "DejaVu Sans".  
+⚠️ The **entire text must be rendered exactly as written** — no substitutions, distortions, automatic corrections, kerning issues, or spacing shifts.  
+⚠️ Pay special attention that **every letter (including common ones like "z", "m", "n", "a") is reproduced precisely as shown** in the prompt.  
+⚠️ UTF-8 characters must render correctly. Repeat: UTF-8 characters **must render correctly**.  
+⚠️ The following letters must be displayed 100% correctly: č, ć, ž, š, đ. Repeat: č, ć, ž, š, đ.  
+Aspect ratio: 3:4.
+
+
