@@ -26,7 +26,7 @@ const imageGenerate = async () => {
 
     try {
         // Read the input Excel file
-        const excelFiles = await fs.readdir('./imageGenerationPrompt_excel');
+        const excelFiles = await fs.readdir('./excel_files');
         const latestExcelFile = excelFiles
             .filter(file => file.endsWith('.xlsx'))
             .sort()
@@ -37,29 +37,29 @@ const imageGenerate = async () => {
             return;
         }
 
-        const excelPath = path.join('./imageGenerationPrompt_excel', latestExcelFile);
+        const excelPath = path.join('./excel_files', latestExcelFile);
         const workbook = xlsx.readFile(excelPath);
         const worksheet = workbook.Sheets['Results'];
         const excelData = xlsx.utils.sheet_to_json(worksheet);
 
-        // Prepare output file
-        const outputDir = './result_excel';
-        if (!fs2.existsSync(outputDir)) {
-            fs2.mkdirSync(outputDir);
-        }
-        const outputPath = path.join(outputDir, `result${getTimeStamp()}.xlsx`);
-
-        // Process all images
-        const queue = excelData.map(data => ({
-            imageName: data['Image Name'],
-            prompt: data['Generated Prompt'],
-            convertedDir: convertedDir,
+        
+        const imageData = excelData.slice(1).map(row => ({
+            imageName: row[0],
+            prompt: row[1],
+            newImageName: row[2],
         }));
 
+        const queue = imageData.filter(data => 
+            data.imageName && data.prompt && data.newImageName
+        ).map(data => ({
+            imageName: data.imageName,
+            prompt: data.prompt,
+            newImageName: data.newImageName,
+            convertedDir:convertedDir
+        }));
         // Process queue with workers
         const workers = new Set();
-        const results = [];
-        const allUpdates = []; // Collect all updates here
+        const results = []; // Collect all updates here
 
         while (queue.length > 0 || workers.size > 0) {
             while (workers.size < NUM_WORKERS && queue.length > 0) {
@@ -68,50 +68,33 @@ const imageGenerate = async () => {
 
                 worker.on('message', (result) => {
                     if (result.success) {
-                        allUpdates.push({
-                            imageName: task.imageName,
-                            newImageName: result.newImageName,
-                        });
-                        console.log(`Processed ${task.imageName}`);
+                        console.log(`Successfully processed ${path.basename(result.imageName)}`);
                     } else {
-                        console.error(`Error processing ${task.imageName}: ${result.error}`);
+                        console.error(`Error processing ${path.basename(imageData.imageName)}: ${result.error}`);
                     }
+                    results.push(result);
                     workers.delete(worker);
                     worker.terminate();
                 });
 
                 worker.on('error', (error) => {
-                    console.error(`Worker error: ${error}`);
+                    console.error(`Worker error for ${path.basename(imageData.imageName)}: ${error}`);
                     workers.delete(worker);
                     worker.terminate();
                 });
 
-                worker.postMessage(task);
+                worker.postMessage(imageData);
                 workers.add(worker);
+                console.log(`Started processing ${path.basename(imageData.imageName)}`);
             }
             await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        // After all workers finish, write all results at once
-        const outputData = excelData.map(item => {
-            const update = allUpdates.find(u => u.imageName === item['Image Name']);
-            return {
-                'Image Name': item['Image Name'],
-                'Detected Product Description': item['Detected Product Description'],
-                'Generated Prompt': item['Generated Prompt'],
-                'Converted Image Name': update ? update.newImageName : ''
-            };
-        });
-
-        const outputWorkbook = xlsx.utils.book_new();
-        const outputWorksheet = xlsx.utils.json_to_sheet(outputData);
-        xlsx.utils.book_append_sheet(outputWorkbook, outputWorksheet, 'Results');
-        xlsx.writeFile(outputWorkbook, outputPath);
-
-        console.log(`All images generated and the result saved to ${outputPath}`);
-
+        console.log('\nProcessing complete!');
+        console.log(`Successfully processed ${results.filter(r => r.success).length} images`);
+        console.log(`Failed to process ${results.filter(r => !r.success).length} images`);
     } catch (error) {
-        console.error('Error in getImageGeneratePrompt:', error);
+        console.error('Error in image Generating:', error);
     }
 }
 

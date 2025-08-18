@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const productDescription = require('./productDescription');
+const newImagePrompt = require('./newImagePrompt');
 const getImageGeneratePrompt = require('./getImageGeneratePrompt');
 const imageGenerate = require('./imageGenerate');
 
@@ -11,7 +11,7 @@ const PORT = 3000;
 // Export functions for batch file access
 module.exports = {
   startServer,
-  productDescription,
+  newImagePrompt,
   getImageGeneratePrompt,
   imageGenerate
 };

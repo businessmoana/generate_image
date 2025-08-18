@@ -11,10 +11,10 @@ const getTimeStamp = () => {
     return now.toISOString().replace(/T/, '_').replace(/:/g, '-').split('.')[0];
 };
 
-const productDescription = async () => {
+const newImagePrompt = async () => {
     try {
         // Setup directories
-        const excelDir = './productDescriptions_excel';
+        const excelDir = './excel_files';
         const imagesDir = './images';
         
         [excelDir, imagesDir].forEach(dir => {
@@ -26,7 +26,7 @@ const productDescription = async () => {
         const excelPath = path.join(excelDir, excelFileName);
         
         const workbook = xlsx.utils.book_new();
-        const headerRow = [['Image Name', 'Detected Product Description']];
+        const headerRow = [['Image Name', 'New Image Prompt',"New Image Name"]];
         const worksheet = xlsx.utils.aoa_to_sheet(headerRow);
         xlsx.utils.book_append_sheet(workbook, worksheet, 'Results');
         xlsx.writeFile(workbook, excelPath);
@@ -49,31 +49,31 @@ const productDescription = async () => {
         // Process queue with workers
         const queue = imageFiles.map(file => ({
             imagePath: path.join(imagesDir, file),
-            imageName: file,
+            imageName: file,    
             excelPath
         }));
 
         const workers = new Set();
         const results = [];
-        const allDescriptions = []; // Store all descriptions here
+        const allNewImagePrompt = []; // Store all descriptions here
 
         while (queue.length > 0 || workers.size > 0) {
             while (workers.size < NUM_WORKERS && queue.length > 0) {
                 const task = queue.shift();
-                const worker = new Worker(path.join(__dirname, 'workers', 'detectProductDescriptionWorker.js'));
+                const worker = new Worker(path.join(__dirname, 'workers', 'newImagePrompt.js'));
 
                 worker.on('message', (result) => {
                     if (result.success) {
-                        allDescriptions.push({
+                        allNewImagePrompt.push({
                             imageName: task.imageName,
-                            description: result.description
+                            newImagePrompt: result.newImagePrompt
                         });
                         console.log(`Processed ${task.imageName}`);
                     } else {
                         console.error(`Error processing ${task.imageName}: ${result.error}`);
-                        allDescriptions.push({
+                        allNewImagePrompt.push({
                             imageName: task.imageName,
-                            description: `ERROR: ${result.error}`
+                            newImagePrompt: `ERROR: ${result.error}`
                         });
                     }
                     workers.delete(worker);
@@ -93,9 +93,9 @@ const productDescription = async () => {
         }
 
         // Write all results at once after processing completes
-        const outputData = [['Image Name', 'Detected Product Description']];
-        allDescriptions.forEach(item => {
-            outputData.push([item.imageName, item.description]);
+        const outputData = [['Image Name', 'New Image Prompt',"New Image Name"]];
+        allNewImagePrompt.forEach(item => {
+            outputData.push([item.imageName, item.newImagePrompt,""]);
         });
 
         const outputWorksheet = xlsx.utils.aoa_to_sheet(outputData);
@@ -107,8 +107,8 @@ const productDescription = async () => {
         console.log(`Results saved to ${excelPath}`);
 
     } catch (error) {
-        console.error('Error in productDescription:', error);
+        console.error('Error in newImagePrompt:', error);
     }
 }
 
-module.exports = productDescription;
+module.exports = newImagePrompt;

@@ -11,68 +11,28 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-const promptsDir = path.join('./prompts');
-
-function loadPrompt(promptName) {
-    const promptPath = path.join(promptsDir, `${promptName}.txt`);
-    try {
-        const promptContent = fs.readFileSync(promptPath, 'utf-8');
-        return promptContent;
-    } catch (err) {
-        console.error(`Error loading prompt ${promptName}:`, err.message);
-        throw err;
-    }
-}
-
-async function translateImageName(imageName) {
-    try {
-        const prompt = `You are an expert translator tasked with translating file names from Slovenian to Croatian.
-
-        Instructions:
-
-        Translate only words from Slovenian to Croatian.
-
-        Preserve the original filename structure including:
-
-        Underscores (_)
-
-        Hyphens (-)
-
-        Numbers (e.g., 01, 02, 123)
-
-        File extensions (.png, .jpg, .jpeg, etc.)
-
-        Do not add spaces where they do not exist.
-
-        Do not alter casing (uppercase, lowercase should remain as in the original).
-
-        If the filename has no separators (no spaces, underscores, or hyphens), carefully translate it without inserting any separators.
-
-        Translate accurately, contextually appropriate, and naturally.                                                
-        translate this : ${imageName}
-        `;
-
-        const response = await openai.chat.completions.create({
-            model: "gpt-4.5-preview",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.7,
-        });
-
-        return response.choices[0].message.content.trim();
-    } catch (error) {
-        console.error('Translation error:', error);
-        throw error;
-    }
-}
 
 async function generateImage(prompt) {
     try {
-        const response = await openai.images.generate({
-            model: "gpt-image-1",
-            n:1,
-            size: "1024x1536",
-            prompt: prompt,
+        const response = await openai.chat.completions.create({
+            model: 'gpt-5',
+            messages: [
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: `Create image base on this : ${prompt}` }
+                    ]
+                }
+            ],
+            max_tokens: 300
         });
+        console.log("response=>>>>",response)
+        // const response = await openai.images.generate({
+        //     model: "gpt-image-1",
+        //     n:1,
+        //     size: "1024x1536",
+        //     prompt: prompt,
+        // });
         const image_base64 = response.data[0].b64_json;
         const image_bytes = Buffer.from(image_base64, "base64");
         const resizedImage = await sharp(image_bytes)
@@ -106,12 +66,10 @@ function ensurePngExtension(filename) {
 parentPort.on('message', async (data) => {
     console.log("here worker")
     try {
-        const { imageName, prompt, convertedDir } = data;
-        
-        // Generate new image using the translated text
-        let newImageName = await translateImageName(imageName); 
+        const { imageName, prompt, newImageName, convertedDir } = data;
+
         const buffer = await generateImage(prompt);
-        // Create translated image name
+        
         newImageName = ensurePngExtension(newImageName);
 
 

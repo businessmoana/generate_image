@@ -20,14 +20,14 @@ function loadPrompt(promptName) {
     }
 }
 
-async function detectProductDescriptionFromImage(imagePath) {
+async function getNewImagePrompt(imagePath) {
     try {
-        const promptContent = loadPrompt('detect_product_description_prompt');
+        const promptContent = loadPrompt('newImagePrompt');
         const imageBuffer = await fs.promises.readFile(imagePath);
         const base64Image = imageBuffer.toString('base64');
         
         const response = await openai.chat.completions.create({
-            model: 'gpt-4o',
+            model: 'gpt-5',
             messages: [
                 {
                     role: 'user',
@@ -42,7 +42,7 @@ async function detectProductDescriptionFromImage(imagePath) {
         
         return response.choices[0].message.content.trim();
     } catch (error) {
-        console.error('Error in detectProductDescriptionFromImage:', error);
+        console.error('Error in newImagePrompt:', error);
         throw error;
     }
 }
@@ -50,11 +50,11 @@ async function detectProductDescriptionFromImage(imagePath) {
 parentPort.on('message', async (data) => {
     try {
         const { imagePath, imageName } = data;
-        const description = await detectProductDescriptionFromImage(imagePath);
+        const newImagePrompt = await getNewImagePrompt(imagePath);
         
         parentPort.postMessage({
             success: true,
-            description,
+            newImagePrompt,
             imageName
         });
     } catch (error) {
