@@ -43,10 +43,10 @@ const imageGenerate = async () => {
         const excelData = xlsx.utils.sheet_to_json(worksheet);
 
         
-        const imageData = excelData.slice(1).map(row => ({
-            imageName: row[0],
-            prompt: row[1],
-            newImageName: row[2],
+        const imageData = excelData.map(row => ({
+            imageName: row['Image Name'],
+            prompt: row['New Image Prompt'],
+            newImageName: row['New Image Name'],
         }));
 
         const queue = imageData.filter(data => 
@@ -68,9 +68,9 @@ const imageGenerate = async () => {
 
                 worker.on('message', (result) => {
                     if (result.success) {
-                        console.log(`Successfully processed ${path.basename(result.imageName)}`);
+                        console.log(`Successfully processed ${result.imageName}`);
                     } else {
-                        console.error(`Error processing ${path.basename(imageData.imageName)}: ${result.error}`);
+                        console.error(`Error processing ${task.imageName}: ${result.error}`);
                     }
                     results.push(result);
                     workers.delete(worker);
@@ -78,14 +78,14 @@ const imageGenerate = async () => {
                 });
 
                 worker.on('error', (error) => {
-                    console.error(`Worker error for ${path.basename(imageData.imageName)}: ${error}`);
+                    console.error(`Worker error for ${task.imageName}: ${error}`);
                     workers.delete(worker);
                     worker.terminate();
                 });
 
-                worker.postMessage(imageData);
+                worker.postMessage(task);
                 workers.add(worker);
-                console.log(`Started processing ${path.basename(imageData.imageName)}`);
+                console.log(`Started processing ${task.imageName}`);
             }
             await new Promise(resolve => setTimeout(resolve, 100));
         }

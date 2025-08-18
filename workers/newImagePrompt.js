@@ -36,8 +36,7 @@ async function getNewImagePrompt(imagePath) {
                         { type: 'image_url', image_url: { url: `data:image/png;base64,${base64Image}` } }
                     ]
                 }
-            ],
-            max_tokens: 300
+            ]
         });
         
         return response.choices[0].message.content.trim();

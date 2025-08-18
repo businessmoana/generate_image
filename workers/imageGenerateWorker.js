@@ -14,25 +14,25 @@ const openai = new OpenAI({
 
 async function generateImage(prompt) {
     try {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-5',
-            messages: [
-                {
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: `Create image base on this : ${prompt}` }
-                    ]
-                }
-            ],
-            max_tokens: 300
-        });
-        console.log("response=>>>>",response)
-        // const response = await openai.images.generate({
-        //     model: "gpt-image-1",
-        //     n:1,
-        //     size: "1024x1536",
-        //     prompt: prompt,
+        // const response = await openai.chat.completions.create({
+        //     model: 'gpt-5',
+        //     messages: [
+        //         {
+        //             role: 'user',
+        //             content: [
+        //                 { type: 'text', text: `Create image base on this : ${prompt}` }
+        //             ]
+        //         }
+        //     ]
         // });
+        // console.log("response=>>>>",response)
+        const response = await openai.images.generate({
+            model: "gpt-image-1",
+            n:1,
+            size: "1024x1536",
+            prompt: `Create image base on this : ${prompt}`,
+        });
+        console.log("response=>>>>", response);
         const image_base64 = response.data[0].b64_json;
         const image_bytes = Buffer.from(image_base64, "base64");
         const resizedImage = await sharp(image_bytes)
@@ -70,10 +70,10 @@ parentPort.on('message', async (data) => {
 
         const buffer = await generateImage(prompt);
         
-        newImageName = ensurePngExtension(newImageName);
+        const newImageNameWithFormat = ensurePngExtension(newImageName);
 
 
-        const outputPath = path.join(convertedDir, path.basename(newImageName));
+        const outputPath = path.join(convertedDir, path.basename(newImageNameWithFormat));
         fs.writeFileSync(outputPath, buffer);
         
         parentPort.postMessage({

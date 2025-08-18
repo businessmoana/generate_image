@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const newImagePrompt = require('./newImagePrompt');
-const getImageGeneratePrompt = require('./getImageGeneratePrompt');
 const imageGenerate = require('./imageGenerate');
 
 const app = express();
@@ -12,7 +11,6 @@ const PORT = 3000;
 module.exports = {
   startServer,
   newImagePrompt,
-  getImageGeneratePrompt,
   imageGenerate
 };
 
