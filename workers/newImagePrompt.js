@@ -25,7 +25,9 @@ async function getNewImagePrompt(imagePath) {
         const promptContent = loadPrompt('newImagePrompt');
         // const imageBuffer = await fs.promises.readFile(imagePath);
         // const base64Image = imageBuffer.toString('base64');
-        
+        const imageResponse = await fetch(imagePath);
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const base64Image = Buffer.from(imageBuffer).toString('base64');
         const response = await openai.chat.completions.create({
             model: 'gpt-5',
             messages: [
@@ -33,7 +35,7 @@ async function getNewImagePrompt(imagePath) {
                     role: 'user',
                     content: [
                         { type: 'text', text: promptContent },
-                        { type: 'image_url', image_url: { url: `${imagePath}` } }
+                        { type: 'image_url', image_url: { url: `data:image/png;base64,${base64Image}` } }
                     ]
                 }
             ]
