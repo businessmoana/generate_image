@@ -45,16 +45,16 @@ const imageGenerate = async () => {
         
         const imageData = excelData.map(row => ({
             imageName: row['Image Name'],
+            id:row['ID'],
             prompt: row['New Image Prompt'],
-            newImageName: row['New Image Name'],
         }));
 
         const queue = imageData.filter(data => 
-            data.imageName && data.prompt && data.newImageName
+            data.imageName && data.prompt && data.id
         ).map(data => ({
             imageName: data.imageName,
             prompt: data.prompt,
-            newImageName: data.newImageName,
+            id: data.id,
             convertedDir:convertedDir
         }));
         // Process queue with workers

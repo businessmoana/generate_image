@@ -53,20 +53,19 @@ function ensurePngExtension(filename) {
 parentPort.on('message', async (data) => {
     console.log("here worker")
     try {
-        const { imageName, prompt, newImageName, convertedDir } = data;
+        const { imageName, prompt, convertedDir } = data;
 
         const buffer = await generateImage(prompt);
         
-        const newImageNameWithFormat = ensurePngExtension(newImageName);
+        const newimageNameWithFormat = ensurePngExtension(imageName.toLowerCase().replace(/\s+/g, '_'));
 
 
-        const outputPath = path.join(convertedDir, path.basename(newImageNameWithFormat));
+        const outputPath = path.join(convertedDir, path.basename(newimageNameWithFormat));
         fs.writeFileSync(outputPath, buffer);
         
         parentPort.postMessage({
             success: true,
             imageName,
-            newImageName,
         });
     } catch (error) {
         parentPort.postMessage({

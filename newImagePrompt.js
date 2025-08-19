@@ -15,18 +15,16 @@ const newImagePrompt = async () => {
     try {
         // Setup directories
         const excelDir = './excel_files';
-        const imagesDir = './images';
-        
-        [excelDir, imagesDir].forEach(dir => {
-            if (!fs2.existsSync(dir)) fs2.mkdirSync(dir);
-        });
+        if (!fs2.existsSync(excelDir)) {
+            fs2.mkdirSync(convertedDirMain);
+        }
 
         // Create initial Excel file
         const excelFileName = `Result_${getTimeStamp()}.xlsx`;
         const excelPath = path.join(excelDir, excelFileName);
         
         const workbook = xlsx.utils.book_new();
-        const headerRow = [['Image Name', 'New Image Prompt',"New Image Name"]];
+        const headerRow = [['Image Name','ID', 'New Image Prompt']];
         const worksheet = xlsx.utils.aoa_to_sheet(headerRow);
         xlsx.utils.book_append_sheet(workbook, worksheet, 'Results');
         xlsx.writeFile(workbook, excelPath);
@@ -46,10 +44,35 @@ const newImagePrompt = async () => {
 
         console.log(`Found ${imageFiles.length} images to process`);
 
-        // Process queue with workers
-        const queue = imageFiles.map(file => ({
-            imagePath: path.join(imagesDir, file),
-            imageName: file,    
+        const exportedFile = await fs.readdir('./exported_file');
+        const latestExportedFile = exportedFile
+            .filter(file => file.endsWith('.xlsx'))
+            .sort()
+            .pop();
+
+        if (!latestExportedFile) {
+            console.error('No Excel file found');
+            return;
+        }
+
+        const exportedPath = path.join('./exported_file', latestExportedFile);
+        const exportedFileWorkbook = xlsx.readFile(exportedPath);
+        const exportedFileWorksheet = exportedFileWorkbook.Sheets[exportedFileWorkbook.SheetNames[0]];
+        const exportedData = xlsx.utils.sheet_to_json(exportedFileWorksheet);
+
+        
+        const imageData = exportedData.map(row => ({
+            imageName: row['post_title'],
+            imagePath: row['images'],
+            id: row['ID'],
+        }));
+
+        const queue = imageData.filter(data => 
+            data.imageName && data.imagePath && data.id
+        ).map(data => ({
+            imageName: data.imageName,
+            imagePath: data.imagePath,
+            id: data.id,
             excelPath
         }));
 
@@ -66,6 +89,7 @@ const newImagePrompt = async () => {
                     if (result.success) {
                         allNewImagePrompt.push({
                             imageName: task.imageName,
+                            id: task.id,
                             newImagePrompt: result.newImagePrompt
                         });
                         console.log(`Processed ${task.imageName}`);
@@ -73,6 +97,7 @@ const newImagePrompt = async () => {
                         console.error(`Error processing ${task.imageName}: ${result.error}`);
                         allNewImagePrompt.push({
                             imageName: task.imageName,
+                            id: task.id,
                             newImagePrompt: `ERROR: ${result.error}`
                         });
                     }
@@ -93,9 +118,9 @@ const newImagePrompt = async () => {
         }
 
         // Write all results at once after processing completes
-        const outputData = [['Image Name', 'New Image Prompt',"New Image Name"]];
+        const outputData = [['Image Name','ID', 'New Image Prompt']];
         allNewImagePrompt.forEach(item => {
-            outputData.push([item.imageName, item.newImagePrompt,""]);
+            outputData.push([item.imageName, item.id, item.newImagePrompt]);
         });
 
         const outputWorksheet = xlsx.utils.aoa_to_sheet(outputData);
