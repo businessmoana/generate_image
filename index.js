@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const newImagePrompt = require('./newImagePrompt');
 const imageGenerate = require('./imageGenerate');
-
+const updateLatestExcelImages = require('./updateExcelImages');
 const app = express();
 app.use(express.json());
 const PORT = 3000;
@@ -11,7 +11,8 @@ const PORT = 3000;
 module.exports = {
   startServer,
   newImagePrompt,
-  imageGenerate
+  imageGenerate,
+  updateLatestExcelImages
 };
 
 async function startServer() {
