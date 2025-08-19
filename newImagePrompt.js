@@ -31,19 +31,6 @@ const newImagePrompt = async () => {
 
         console.log(`Created Excel file: ${excelFileName}`);
 
-        // Get image files
-        const files = await fs.readdir(imagesDir);
-        const imageFiles = files.filter(file => 
-            ['.jpg', '.jpeg', '.png'].some(ext => file.toLowerCase().endsWith(ext))
-        );
-
-        if (imageFiles.length === 0) {
-            console.log('No images found');
-            return;
-        }
-
-        console.log(`Found ${imageFiles.length} images to process`);
-
         const exportedFile = await fs.readdir('./exported_file');
         const latestExportedFile = exportedFile
             .filter(file => file.endsWith('.xlsx'))
