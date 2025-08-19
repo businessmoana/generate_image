@@ -3,6 +3,7 @@ const path = require('path');
 const XLSX = require('xlsx');
 
 const EXPORT_DIR = path.join(__dirname, 'exported_file');
+const RESULT_DIR = path.join(__dirname, 'result');
 
 function getLatestExcelFile(directory) {
   const files = fs.readdirSync(directory)
@@ -27,7 +28,7 @@ function formatImageUrl(baseUrl, postTitle) {
   return baseUrl + postTitle.toLowerCase().replace(/ /g, '_') + '.png';
 }
 
-function updateImagesColumn(filePath) {
+function updateImagesColumnAndSaveNew(filePath, resultDir) {
   const workbook = XLSX.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
@@ -45,13 +46,19 @@ function updateImagesColumn(filePath) {
 
   const newSheet = XLSX.utils.json_to_sheet(data);
   workbook.Sheets[sheetName] = newSheet;
-  XLSX.writeFile(workbook, filePath);
-  console.log(`Updated images column in ${filePath}`);
+
+  if (!fs.existsSync(resultDir)) {
+    fs.mkdirSync(resultDir, { recursive: true });
+  }
+
+  const newFilePath = path.join(resultDir, path.basename(filePath));
+  XLSX.writeFile(workbook, newFilePath);
+  console.log(`Updated images column and saved to ${newFilePath}`);
 }
 
 const updateLatestExcelImages = () => {
   const latestFile = getLatestExcelFile(EXPORT_DIR);
-  updateImagesColumn(latestFile);
+  updateImagesColumnAndSaveNew(latestFile, RESULT_DIR);
 }
 
 module.exports = updateLatestExcelImages;
