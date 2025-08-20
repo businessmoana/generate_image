@@ -14,21 +14,42 @@ const openai = new OpenAI({
 
 async function generateImage(prompt) {
     try {
-        const response = await openai.images.generate({
-            model: "gpt-image-1",
-            n:1,
-            size: "1024x1536",
-            prompt: `${prompt}`,
-        });
-        const image_base64 = response.data[0].b64_json;
-        const image_bytes = Buffer.from(image_base64, "base64");
-        const resizedImage = await sharp(image_bytes)
-            .resize(512, 768, {
-                fit: 'inside',
-                withoutEnlargement: true
-            })
-            .toBuffer();
-        return resizedImage;
+        // const response = await openai.images.generate({
+        //     model: "gpt-image-1",
+        //     n:1,
+        //     size: "1024x1536",
+        //     prompt: `${prompt}`,
+        // });
+        // const image_base64 = response.data[0].b64_json;
+        // const image_bytes = Buffer.from(image_base64, "base64");
+        const response = await client.responses.create({
+            model: "gpt-5",
+            input: `${prompt}`,
+            tools: [
+                {
+                type: "image_generation",
+                background: "transparent",
+                quality: "low",
+                size: "1024x1536"
+                },
+            ],
+            });
+
+            const imageData = response.output
+            .filter((output) => output.type === "image_generation_call")
+            .map((output) => output.result);
+
+            if (imageData.length > 0) {
+                const imageBase64 = imageData[0];
+                const imageBuffer = Buffer.from(imageBase64, "base64");
+                const resizedImage = await sharp(imageBuffer)
+                .resize(512, 768, {
+                    fit: 'inside',
+                    withoutEnlargement: true
+                })
+                .toBuffer();
+                return resizedImage;
+            }
     } catch (error) {
         console.error('Image generation error:', error);
         throw error;
