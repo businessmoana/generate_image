@@ -13,23 +13,14 @@ const openai = new OpenAI({
 
 
 async function generateImage(prompt) {
-    try {
-        // const response = await openai.images.generate({
-        //     model: "gpt-image-1",
-        //     n:1,
-        //     size: "1024x1536",
-        //     prompt: `${prompt}`,
-        // });
-        // const image_base64 = response.data[0].b64_json;
-        // const image_bytes = Buffer.from(image_base64, "base64");
-        const response = await client.responses.create({
+    try 
+        const response = await openai.responses.create({
             model: "gpt-5",
             input: `${prompt}`,
             tools: [
                 {
                 type: "image_generation",
-                background: "transparent",
-                quality: "low",
+                quality: "medium",
                 size: "1024x1536"
                 },
             ],
